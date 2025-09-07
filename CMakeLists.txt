@@ -3,6 +3,7 @@ project(chip-8)
 
 set(SDL2 /Library/Frameworks/SDL2.framework)
 set(SDL2_image /Library/Frameworks/SDL2_image.framework)
+set(CMAKE_C_FLAGS_DEBUG_INIT "-g")
 
 add_compile_options(-F/Library/Frameworks)
 

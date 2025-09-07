@@ -8,22 +8,7 @@ struct cpu {
     uint16_t stack[16];
 
     // Registers
-    uint8_t v0;
-    uint8_t v1;
-    uint8_t v2;
-    uint8_t v3;
-    uint8_t v4;
-    uint8_t v5;
-    uint8_t v6;
-    uint8_t v7;
-    uint8_t v8;
-    uint8_t v9;
-    uint8_t vA;
-    uint8_t vB;
-    uint8_t vC;
-    uint8_t vD;
-    uint8_t vE;
-    uint8_t vF;
+    uint8_t v[16];
     uint16_t I;
 
     // special purpose
@@ -33,8 +18,9 @@ struct cpu {
     uint8_t sp;  // stack pointer
 };
 
+extern struct cpu cpu;
 
-void init_cpu(struct cpu*);
-void start_cpu(struct cpu*);
+void init_cpu();
+void start_cpu();
 
 #endif
