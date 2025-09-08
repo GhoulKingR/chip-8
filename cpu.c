@@ -3,6 +3,7 @@
 #include <SDL2/SDL_timer.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -118,12 +119,13 @@ static void run_instruction(uint8_t b12, uint8_t b34) {
         cpu.v[b2] = randomByte;
     } else if (b1 == 0xD) {
         uint8_t* sprite = ram + cpu.I; // size b4
-        display_write_to(b2, b3, sprite, b4, cpu.v + 0xF);
+        display_write_to(cpu.v[b2], cpu.v[b3], sprite, b4, cpu.v + 0xF);
         display_render();
     } else if (b1 == 0xE) {
         if (b34 == 0x9E) {
-            if (keys[key_translations[b2]])
+            if (keys[key_translations[b2]]) {
                 cpu.pc += 2;
+            }
         } else if (b34 == 0xA1) {
             if (!keys[key_translations[b2]])
                 cpu.pc += 2;
@@ -132,16 +134,23 @@ static void run_instruction(uint8_t b12, uint8_t b34) {
         if (b34 == 0x07) {
             cpu.v[b2] = cpu.dt;
         } else if (b34 == 0x0A) {
-            
-            bool found = false;
-            while (!found) {
-                for (int i = 0; i < 16; i++) {
-                    if (keys[key_translations[i]]) {
-                        found = true;
-                        break; 
+            // printf("Forced key press\n");
+            SDL_Event e;
+
+            while (1) {
+                if (SDL_WaitEvent(&e)) {
+                    if (e.type == SDL_KEYDOWN) {
+                        for (int i = 0; i < 16; i++) {
+                            if (e.key.keysym.sym == key_translations[i]) {
+                                cpu.v[b2] = i;
+                                // printf("Key %d pressed\n", i);
+                                return;
+                            }
+                        }
+                    } else if (e.type == SDL_QUIT) {
+                        exit(0);
                     }
                 }
-                SDL_Delay(1000);
             }
         } else if (b34 == 0x15) {
             cpu.dt = cpu.v[b2];
@@ -195,6 +204,6 @@ void start_cpu() {
         if (cpu.st > 0) cpu.st--;
         if (cpu.dt > 0) cpu.dt--;
 
-        SDL_Delay(16);
+        SDL_Delay(5);
     }
 }

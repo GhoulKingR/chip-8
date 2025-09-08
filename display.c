@@ -20,8 +20,8 @@ SDL_Renderer* renderer = NULL;
 static struct {
     uint64_t screen[32];
 } display;
-static const int DISPLAY_WIDTH = 480;       // scale 8 : 1
-static const int DISPLAY_HEIGHT = 240;      // scale 8 : 1
+static const int DISPLAY_WIDTH = 512;       // scale 8 : 1
+static const int DISPLAY_HEIGHT = 256;      // scale 8 : 1
 
 static void exit_handler() {
     if (renderer != NULL) SDL_DestroyRenderer(renderer);
@@ -61,6 +61,11 @@ void init_display() {
     SDL_RenderPresent(renderer);
 }
 
+static void clean_render_view() {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+}
+
 void display_render() {
     SDL_Rect rects[64 * 32];
     int size = 0;
@@ -79,15 +84,16 @@ void display_render() {
         }
     }
 
+    clean_render_view();
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderFillRects(renderer, rects, size);
     SDL_RenderPresent(renderer);
 }
 
 void display_clear() {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-    SDL_RenderPresent(renderer);
+    clean_render_view();
+    memset(display.screen, 0, 32 * sizeof(uint64_t));
+    display_render();
 }
 
 void display_write_to(uint8_t x, uint8_t y, uint8_t* sprite, size_t n, uint8_t* carry) {
@@ -96,7 +102,7 @@ void display_write_to(uint8_t x, uint8_t y, uint8_t* sprite, size_t n, uint8_t* 
     for (int i = 0; i < n; i++) {
         uint64_t sprite_line = 0;
         sprite_line += sprite[i];
-        sprite_line <<= 38;
+        sprite_line <<= 56;
         sprite_line >>= x;
         uint64_t display_line = display.screen[y + i];
 
