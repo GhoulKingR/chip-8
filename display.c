@@ -93,7 +93,6 @@ void display_render() {
 void display_clear() {
     clean_render_view();
     memset(display.screen, 0, 32 * sizeof(uint64_t));
-    display_render();
 }
 
 void display_write_to(uint8_t x, uint8_t y, uint8_t* sprite, size_t n, uint8_t* carry) {
@@ -104,20 +103,18 @@ void display_write_to(uint8_t x, uint8_t y, uint8_t* sprite, size_t n, uint8_t* 
         sprite_line += sprite[i];
         sprite_line <<= 56;
         sprite_line >>= x;
-        uint64_t display_line = display.screen[y + i];
 
-        uint64_t c1 = display_line;
-        display_line ^= sprite_line;
-        display.screen[y + i] = display_line;
-        uint64_t c2 = display_line;
+        uint64_t c1 = display.screen[y + i];
+        display.screen[y + i] ^= sprite_line;
+        uint64_t c2 = display.screen[y + i];
 
         if (*carry == 0) {
-            for (int i = 0; i < 64; i++) {
-                uint8_t b1 = c1 % 10, b2 = c2 % 10;
+            for (int j = 0; j < 64; j++) {
+                uint8_t b1 = c1 % 0b10, b2 = c2 % 0b10;
                 c1 >>= 1; c2 >>= 1;
                 if (b1 == 1 && b2 == 0) {
                     *carry = 1;
-                    return;
+                    break;
                 }
             }
         }
