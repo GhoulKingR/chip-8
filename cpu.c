@@ -12,6 +12,7 @@
 
 #include "display.h"
 #include "ram.h"
+#include "sound.h"
 #include "cpu.h"
 
 struct cpu cpu;
@@ -198,11 +199,16 @@ void start_cpu() {
             }
         }
 
-        run_instruction(ram[cpu.pc++], ram[cpu.pc++]);
-
         // decrement st and dt
         if (cpu.st > 0) cpu.st--;
         if (cpu.dt > 0) cpu.dt--;
+        
+        run_instruction(ram[cpu.pc++], ram[cpu.pc++]);
+
+        if (cpu.st > 0)
+            sound_start();
+        else
+            sound_stop();
 
         SDL_Delay(5);
     }

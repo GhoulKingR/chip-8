@@ -6,10 +6,13 @@
 #include "display.h"
 #include "cpu.h"
 #include "ram.h"
+#include "sound.h"
 
 int main(int argc, char** argv) {
     srand(time(NULL));
+    init_display();
     init_cpu();
+    init_sound();
 
     init_ram();
     if (argc == 2)
@@ -19,7 +22,6 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    init_display();
 
     start_cpu();
     return 0;
