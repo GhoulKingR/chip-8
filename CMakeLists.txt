@@ -1,18 +1,10 @@
 cmake_minimum_required(VERSION 4.0)
 project(chip-8)
 
-set(SDL2 /Library/Frameworks/SDL2.framework)
-set(SDL2_image /Library/Frameworks/SDL2_image.framework)
-set(CMAKE_C_FLAGS_DEBUG_INIT "-g")
-
-add_compile_options(-F/Library/Frameworks)
+find_package(SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRECTORIES})
 
 file(GLOB SOURCES CONFIGURE_DEPENDS "*.c")
 add_executable(${PROJECT_NAME} ${SOURCES})
-
-target_link_libraries(
-    ${PROJECT_NAME} PRIVATE
-    ${SDL2}/Versions/A/SDL2
-    ${SDL2_image}/Versions/A/SDL2_image
-)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
 
