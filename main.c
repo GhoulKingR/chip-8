@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
     if (argc == 2)
         load_game(argv[1]);
     else {
-        fprintf(stderr, "Missing argument: must provide path to game file\n");
+        fprintf(stderr, "Missing argument: must provide path to chip-8 executable\n");
         return EXIT_FAILURE;
     }
 
