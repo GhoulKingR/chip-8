@@ -26,5 +26,5 @@ make
 
 This creates a `chip-8` executable file that you can run with following this syntax:
 ```bash
-./chip-8 ../path/to/rom.ch8
+./chip-8 ../roms/to/rom.ch8
 ```

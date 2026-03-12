@@ -41,6 +41,8 @@ static void run_instruction(uint8_t b12, uint8_t b34) {
             display_clear();
         } else if (b34 == 0xEE) {  // RET
             cpu.pc = cpu.stack[cpu.sp--];
+        } else {
+            SEND_FAILED("Invalid instruction %2x%2x", b12, b34);
         }
     } else if (b1 == 1) {
         cpu.pc = 0;
@@ -117,18 +119,29 @@ static void run_instruction(uint8_t b12, uint8_t b34) {
         display_render();
     } else if (b1 == 0xE) {
         if (b34 == 0x9E) {
+            DEBUG_LOG("Is key %x pressed", b2);
             if (keys[key_translations[b2]]) {
                 cpu.pc += 2;
+                DEBUG_LOG("Yes");
+            } else {
+                DEBUG_LOG("No");
             }
         } else if (b34 == 0xA1) {
-            if (!keys[key_translations[b2]])
+            DEBUG_LOG("Is key %x not pressed", b2);
+            if (!keys[key_translations[b2]]) {
                 cpu.pc += 2;
+                DEBUG_LOG("Yes");
+            } else {
+                DEBUG_LOG("No");
+            }
+        } else {
+            SEND_FAILED("Invalid instruction %2x%2x", b12, b34);
         }
     } else if (b1 == 0xF) {
         if (b34 == 0x07) {
             cpu.v[b2] = cpu.dt;
         } else if (b34 == 0x0A) {
-            // printf("Forced key press\n");
+            DEBUG_LOG("Waiting for key press");
             SDL_Event e;
 
             while (1) {
@@ -137,7 +150,7 @@ static void run_instruction(uint8_t b12, uint8_t b34) {
                         for (int i = 0; i < 16; i++) {
                             if (e.key.keysym.sym == key_translations[i]) {
                                 cpu.v[b2] = i;
-                                // printf("Key %d pressed\n", i);
+                                DEBUG_LOG("Key %d pressed", i);
                                 return;
                             }
                         }
@@ -169,7 +182,11 @@ static void run_instruction(uint8_t b12, uint8_t b34) {
             for (int i = 0; i <= b2; i++) {
                 cpu.v[i] = ram[cpu.I + i];
             }
+        } else {
+            SEND_FAILED("Invalid instruction %2x%2x", b12, b34);
         }
+    } else {
+        SEND_FAILED("Invalid instruction %2x%2x", b12, b34);
     }
 }
 
