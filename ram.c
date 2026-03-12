@@ -3,10 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "config.h"
 #include "ram.h"
 #define PROGRAM_BEGIN 0x200
-
-static const int RAMSIZE = 4096;
 
 uint8_t* ram = NULL;
 uint16_t sprite_locations[16];
@@ -151,16 +150,21 @@ static void load_sprites() {
 }
 
 void init_ram() {
+    DEBUG_LOG("Initializing ram");
     ram = malloc(RAMSIZE);
     atexit(exit_handler);
     memset(ram, '\0', RAMSIZE);
-
     load_sprites();
 }
 
 void load_game(char* game_path) {
     FILE* fptr = fopen(game_path, "rb");
+    if (fptr == NULL) {
+        SEND_FAILED("File \"%s\" does not exist", game_path);
+    }
+
     uint8_t* loadptr = ram + PROGRAM_BEGIN;
     cpu.pc = PROGRAM_BEGIN;
     fread(loadptr, 1, 4096 - PROGRAM_BEGIN, fptr);
+    DEBUG_LOG("Game loaded");
 }

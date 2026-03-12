@@ -1,4 +1,5 @@
 #include "display.h"
+#include "config.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_error.h>
@@ -19,9 +20,7 @@ SDL_Renderer* renderer = NULL;
 
 static struct {
     uint64_t screen[32];
-} display;
-static const int DISPLAY_WIDTH = 512;       // scale 8 : 1
-static const int DISPLAY_HEIGHT = 256;      // scale 8 : 1
+} display = {0};
 
 static void exit_handler() {
     if (renderer != NULL) SDL_DestroyRenderer(renderer);
@@ -29,11 +28,13 @@ static void exit_handler() {
     SDL_Quit();
 }
 
+
 void init_display() {
-    memset(display.screen, 0, 32 * sizeof(uint64_t));
+    DEBUG_LOG("Initializing display");
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-        fprintf(stderr, "Error initializing SDL: %s\n", SDL_GetError());
-        exit(EXIT_FAILURE);
+        SEND_FAILED("Error initializing SDL: %s", SDL_GetError());
+    } else {
+        DEBUG_LOG("SDL initialized successfully");
     }
 
     atexit(exit_handler);
@@ -46,14 +47,16 @@ void init_display() {
         SDL_WINDOW_SHOWN
     );
     if (!window) {
-        fprintf(stderr, "Error creating window: %s\n", SDL_GetError());
-        exit(EXIT_FAILURE);
+        SEND_FAILED("Error creating window: %s", SDL_GetError());
+    } else {
+        DEBUG_LOG("Window created successfully");
     }
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
-        fprintf(stderr, "Error creating renderer: %s\n", SDL_GetError());
-        exit(EXIT_FAILURE);
+        SEND_FAILED("Error creating renderer: %s", SDL_GetError());
+    } else {
+        DEBUG_LOG("Render created successfully");
     }
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);

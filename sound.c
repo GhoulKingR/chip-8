@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "sound.h"
+#include "config.h"
 
 static SDL_AudioDeviceID audioDevice;
 static SDL_AudioSpec obtainedSpec;
@@ -85,6 +86,7 @@ static void audioCallback(void* userdata, uint8_t* stream, int len) {
 }
 
 void init_sound() {
+    DEBUG_LOG("Initializing sound");
     SDL_AudioSpec desiredSpec;
     SDL_zero(desiredSpec);
 

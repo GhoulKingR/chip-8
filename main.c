@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "config.h"
 #include "display.h"
 #include "cpu.h"
 #include "ram.h"
@@ -10,18 +11,16 @@
 
 int main(int argc, char** argv) {
     srand(time(NULL));
+    cpu_init();
     init_display();
-    init_cpu();
     init_sound();
-
     init_ram();
-    if (argc == 2)
-        load_game(argv[1]);
-    else {
-        fprintf(stderr, "Missing argument: must provide path to chip-8 executable\n");
-        return EXIT_FAILURE;
-    }
 
+    if (argc == 2) {
+        load_game(argv[1]);
+    } else {
+        SEND_FAILED("Missing argument: must provide path to chip-8 executable");
+    }
 
     start_cpu();
     return 0;

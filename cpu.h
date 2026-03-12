@@ -20,7 +20,8 @@ struct cpu {
 
 extern struct cpu cpu;
 
-void init_cpu();
+#define cpu_init() cpu.sp = -1;
+
 void start_cpu();
 
 #endif

@@ -10,6 +10,7 @@
 #include <errno.h>    
 #include <SDL2/SDL.h>
 
+#include "config.h"
 #include "display.h"
 #include "ram.h"
 #include "sound.h"
@@ -29,14 +30,9 @@ int key_translations[16] = {
     SDLK_e, SDLK_f
 };
 
-void init_cpu() {
-    cpu.sp = -1;
-}
-
-static void run_instruction(uint16_t bytes) {
-    uint8_t b34 = bytes & 0b11111111;
-    uint8_t b1 = bytes >> 12;
-    uint8_t b2 = (bytes & 0xf00) >> 8;
+static void run_instruction(uint8_t b12, uint8_t b34) {
+    uint8_t b1 = b12 >> 4;
+    uint8_t b2 = b12 & 0xf;
     uint8_t b3 = b34 >> 4;
     uint8_t b4 = b34 & 0xf;
 
@@ -178,6 +174,8 @@ static void run_instruction(uint16_t bytes) {
 }
 
 void start_cpu() {
+    DEBUG_LOG("Starting executable");
+
     // clock
     bool running = true;
     while (running) {
@@ -200,9 +198,7 @@ void start_cpu() {
         if (cpu.st > 0) cpu.st--;
         if (cpu.dt > 0) cpu.dt--;
         
-        uint16_t instruction = *((uint16_t *) &(ram[cpu.pc]));
-        cpu.pc += 2;
-        run_instruction(instruction);
+        run_instruction(ram[cpu.pc++], ram[cpu.pc++]);
 
         if (cpu.st > 0)
             sound_start();
