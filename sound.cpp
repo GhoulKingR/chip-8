@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sound.h"
-#include "config.h"
+#include "sound.hpp"
+#include "config.hpp"
 
 static SDL_AudioDeviceID audioDevice;
 static SDL_AudioSpec obtainedSpec;

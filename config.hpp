@@ -4,6 +4,8 @@ static const int DISPLAY_WIDTH  = 512;      // scale 8 : 1
 static const int DISPLAY_HEIGHT = 256;      // scale 8 : 1
 static const int RAMSIZE        = 4096;
 
+#define PROGRAM_BEGIN 0x200
+
 #define SEND_ERR(str, ...) \
     fprintf(stderr, "Error: " str "\n" __VA_OPT__(,) __VA_ARGS__);
 
