@@ -3,12 +3,12 @@
 
 #include "config.hpp"
 #include "display.hpp"
+#include "ram.hpp"
 #include <array>
 #include <cstdint>
 #include <random>
 #include <unordered_map>
 
-struct Memory;
 struct CPU {
     // stack
     std::array<uint16_t, 16> stack{};
@@ -25,10 +25,11 @@ struct CPU {
 
     std::mt19937 engine;
     std::uniform_int_distribution<int> dist;
-    Display *display = nullptr;
-    Memory *memory = nullptr;
 
-    CPU(Display *);
+    Display &display;
+    Memory &memory;
+
+    CPU(Display&, Memory&);
     void start();
 
 private:

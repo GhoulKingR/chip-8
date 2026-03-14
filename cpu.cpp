@@ -9,7 +9,6 @@
 #include <ctime>
 #include <cerrno>    
 #include <SDL2/SDL.h>
-#include <exception>
 
 #include "config.hpp"
 #include "display.hpp"
@@ -28,19 +27,16 @@ static int key_translations[16] = {
     SDLK_e, SDLK_f
 };
 
-CPU::CPU(Display *display) :
+CPU::CPU(Display &display, Memory &memory) :
     engine(std::chrono::system_clock::now().time_since_epoch().count()),
     dist(0x0, 0x99),
-    display(display)
+    display(display),
+    memory(memory)
 {}
 
 void CPU::run_instruction() {
-    if (memory == nullptr) {
-        SEND_FAILED("Memory in CPU is a null pointer");
-    }
-
-    uint8_t b12 = memory->ram[pc++];
-    uint8_t b34 = memory->ram[pc++];
+    uint8_t b12 = memory.ram[pc++];
+    uint8_t b34 = memory.ram[pc++];
     uint8_t b1 = b12 >> 4;
     uint8_t b2 = b12 & 0xf;
     uint8_t b3 = b34 >> 4;
@@ -48,7 +44,7 @@ void CPU::run_instruction() {
 
     if (b1 == 0) {
         if (b34 == 0xE0) {  // CLS
-            display->clear();
+            display.clear();
         } else if (b34 == 0xEE) {  // RET
             pc = stack[sp--];
         }
@@ -122,9 +118,9 @@ void CPU::run_instruction() {
         randomByte &= b34;
         v[b2] = randomByte;
     } else if (b1 == 0xD) {
-        uint8_t* sprite = memory->ram.data() + I; // size b4
-        display->write_to(v[b2], v[b3], sprite, b4, &(v[0xF]));
-        display->render();
+        uint8_t* sprite = memory.ram.data() + I; // size b4
+        display.write_to(v[b2], v[b3], sprite, b4, &(v[0xF]));
+        display.render();
     } else if (b1 == 0xE) {
         if (b34 == 0x9E) {
             if (keys[key_translations[b2]]) {
@@ -163,21 +159,21 @@ void CPU::run_instruction() {
         } else if (b34 == 0x1E) {
             I += v[b2];
         } else if (b34 == 0x29) {
-            I = memory->sprite_locations[v[b2]];
+            I = memory.sprite_locations[v[b2]];
         } else if (b34 == 0x33) {
             uint8_t val = v[b2];
-            memory->ram[I + 2] = val % 10;
+            memory.ram[I + 2] = val % 10;
             val >>= 1;
-            memory->ram[I + 1] = val % 10;
+            memory.ram[I + 1] = val % 10;
             val >>= 1;
-            memory->ram[I] = val % 10;
+            memory.ram[I] = val % 10;
         } else if (b34 == 0x55) {
             for (int i = 0; i <= b2; i++) {
-                memory->ram[I + i] = v[i];
+                memory.ram[I + i] = v[i];
             }
         } else if (b34 == 0x65) {
             for (int i = 0; i <= b2; i++) {
-                v[i] = memory->ram[I + i];
+                v[i] = memory.ram[I + i];
             }
         }
     }

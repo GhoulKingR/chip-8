@@ -1,11 +1,9 @@
-#include <cstdio>
 #include <fstream>
 #include <ios>
 #include <iosfwd>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "config.hpp"
 #include "ram.hpp"
@@ -143,7 +141,7 @@ void Memory::load_sprites() {
     ram[pos++] = 0x80;
 }
 
-Memory::Memory(CPU *cpu, const char *game_path) {
+Memory::Memory(const char *game_path) {
     DEBUG_LOG("Initializing ram");
 
     std::ifstream game_file(game_path, std::ios::in | std::ios::binary);
@@ -158,8 +156,6 @@ Memory::Memory(CPU *cpu, const char *game_path) {
 
     uint8_t* loadptr = ram.data() + PROGRAM_BEGIN;
     game_file.read((char *) loadptr, size);
-    // fread(loadptr, 1, 4096 - PROGRAM_BEGIN, fptr);
-    cpu->memory = this;
 
     load_sprites();
     game_file.close();
