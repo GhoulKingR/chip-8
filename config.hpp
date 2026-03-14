@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CONFIG_HPP_
+#define CONFIG_HPP_
 
 static const int DISPLAY_WIDTH  = 512;      // scale 8 : 1
 static const int DISPLAY_HEIGHT = 256;      // scale 8 : 1
@@ -18,4 +19,6 @@ static const int RAMSIZE        = 4096;
     printf("Debug: " str "\n" __VA_OPT__(,) __VA_ARGS__)
 #else
 #define DEBUG_LOG(str, ...) 0
+#endif
+
 #endif

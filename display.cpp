@@ -17,6 +17,7 @@
 #include <string.h>
 
 Display::~Display() {
+    DEBUG_LOG("Shutting down chip-8 emulator"); 
     if (renderer != NULL) SDL_DestroyRenderer(renderer);
     if (window != NULL) SDL_DestroyWindow(window);
     SDL_Quit();

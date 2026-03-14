@@ -2,3 +2,5 @@ CompileFlags:
   Add:
     - -F/Library/Frameworks
     - -DDEBUG
+    - -Wall
+    - -Wextra
