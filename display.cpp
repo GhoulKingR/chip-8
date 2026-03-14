@@ -9,6 +9,7 @@
 #include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_video.h>
+#include <cstddef>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -90,7 +91,7 @@ void Display::clear() {
 void Display::write_to(uint8_t x, uint8_t y, uint8_t* sprite, size_t n, uint8_t* carry) {
     *carry = 0;
 
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
         uint64_t sprite_line = 0;
         sprite_line += sprite[i];
         sprite_line <<= 56;

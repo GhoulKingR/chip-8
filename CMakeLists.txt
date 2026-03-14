@@ -13,6 +13,9 @@ file(GLOB SOURCES CONFIGURE_DEPENDS "*.cpp")
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
 
+target_compile_options(${PROJECT_NAME} PRIVATE
+    -Wall -Wextra)
+
 if(DEBUG)
     target_compile_options(${PROJECT_NAME} PRIVATE
         -DDEBUG -g -fno-omit-frame-pointer -fsanitize=address)
@@ -20,5 +23,5 @@ if(DEBUG)
         -fsanitize=address)
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE
-        -O3)
+        -O3 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti)
 endif()

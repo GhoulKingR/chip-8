@@ -5,6 +5,7 @@
 #include "display.hpp"
 #include <array>
 #include <cstdint>
+#include <random>
 #include <unordered_map>
 
 struct Memory;
@@ -22,6 +23,8 @@ struct CPU {
     uint16_t pc = PROGRAM_BEGIN;    // program counter
     uint8_t sp = -1;    // stack pointer
 
+    std::mt19937 engine;
+    std::uniform_int_distribution<int> dist;
     Display *display = nullptr;
     Memory *memory = nullptr;
 

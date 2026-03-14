@@ -1,6 +1,7 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_timer.h>
+#include <chrono>
 #include <cstdbool>
 #include <cstdint>
 #include <cstdlib>
@@ -27,8 +28,11 @@ static int key_translations[16] = {
     SDLK_e, SDLK_f
 };
 
-CPU::CPU(Display *display)
-    : display(display) {}
+CPU::CPU(Display *display) :
+    engine(std::chrono::system_clock::now().time_since_epoch().count()),
+    dist(0x0, 0x99),
+    display(display)
+{}
 
 void CPU::run_instruction() {
     if (memory == nullptr) {
@@ -114,7 +118,7 @@ void CPU::run_instruction() {
         pc += b34;
         pc += v[0];
     } else if (b1 == 0xC) {
-        uint8_t randomByte = rand() % 0x100;
+        uint8_t randomByte = dist(engine) % 0x100;
         randomByte &= b34;
         v[b2] = randomByte;
     } else if (b1 == 0xD) {
@@ -204,11 +208,7 @@ void CPU::start() {
         if (st > 0) st--;
         if (dt > 0) dt--;
         
-        try {
-            run_instruction();
-        } catch(const std::exception& e) {
-            SEND_FAILED("%s", e.what());
-        }
+        run_instruction();
 
         if (st > 0) {
             sound_start();
