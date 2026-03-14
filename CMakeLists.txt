@@ -18,4 +18,7 @@ if(DEBUG)
         -DDEBUG -g -fno-omit-frame-pointer -fsanitize=address)
     target_link_options(${PROJECT_NAME} PRIVATE
         -fsanitize=address)
+else()
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -O3)
 endif()
