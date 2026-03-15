@@ -1,23 +1,15 @@
+#include <fstream>
+#include <ios>
+#include <iosfwd>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-#include "config.h"
-#include "ram.h"
-#define PROGRAM_BEGIN 0x200
+#include "config.hpp"
+#include "ram.hpp"
 
-uint8_t* ram = NULL;
-uint16_t sprite_locations[16];
 
-static void exit_handler() {
-    if (ram != NULL) {
-        free(ram);
-        ram = NULL;
-    }
-}
-
-static void load_sprites() {
+void Memory::load_sprites() {
     uint16_t pos = 0x0;
 
     // 0
@@ -149,22 +141,23 @@ static void load_sprites() {
     ram[pos++] = 0x80;
 }
 
-void init_ram() {
+Memory::Memory(const char *game_path) {
     DEBUG_LOG("Initializing ram");
-    ram = malloc(RAMSIZE);
-    atexit(exit_handler);
-    memset(ram, '\0', RAMSIZE);
-    load_sprites();
-}
 
-void load_game(char* game_path) {
-    FILE* fptr = fopen(game_path, "rb");
-    if (fptr == NULL) {
+    std::ifstream game_file(game_path, std::ios::in | std::ios::binary);
+    if (!game_file) {
         SEND_FAILED("File \"%s\" does not exist", game_path);
     }
 
-    uint8_t* loadptr = ram + PROGRAM_BEGIN;
-    cpu.pc = PROGRAM_BEGIN;
-    fread(loadptr, 1, 4096 - PROGRAM_BEGIN, fptr);
+    // size
+    game_file.seekg(0, std::ios::end);
+    std::streampos size = game_file.tellg();
+    game_file.seekg(0, std::ios::beg);
+
+    uint8_t* loadptr = ram.data() + PROGRAM_BEGIN;
+    game_file.read((char *) loadptr, size);
+
+    load_sprites();
+    game_file.close();
     DEBUG_LOG("Game loaded");
 }

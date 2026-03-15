@@ -8,16 +8,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sound.h"
-#include "config.h"
+#include "sound.hpp"
+#include "config.hpp"
 
-static SDL_AudioDeviceID audioDevice;
-static SDL_AudioSpec obtainedSpec;
-static void (*writeData)(uint8_t* ptr, double data);
-static int (*calculateOffset)(int sample, int channel);
-static int m_pos;
-static double m_frequency = 261.63;
-static double m_volume = 1.0;
+void (*Sound::writeData)(uint8_t* ptr, double data) = nullptr;
+int (*Sound::calculateOffset)(int sample, int channel) = nullptr;
+SDL_AudioSpec Sound::obtainedSpec = {};
+int Sound::m_pos = 0;
 
 // ---
 // Calculate the offset in bytes from the start of the audio stream to the
@@ -25,13 +22,13 @@ static double m_volume = 1.0;
 //
 // Channels are interleaved.
 
-int calculateOffset_s16(int sample, int channel) {
+int Sound::calculateOffset_s16(int sample, int channel) {
     return
         (sample * sizeof(int16_t) * obtainedSpec.channels) +
         (channel * sizeof(int16_t));
 }
 
-int calculateOffset_f32(int sample, int channel) {
+int Sound::calculateOffset_f32(int sample, int channel) {
     return
         (sample * sizeof(float) * obtainedSpec.channels) +
         (channel * sizeof(float));
@@ -41,19 +38,19 @@ int calculateOffset_f32(int sample, int channel) {
 // Convert a normalized data value (range: 0.0 .. 1.0) to a data value matching
 // the audio format.
 
-void writeData_s16(uint8_t* ptr, double data) {
+void Sound::writeData_s16(uint8_t* ptr, double data) {
     int16_t* ptrTyped = (int16_t*)ptr;
     double range = (double)INT16_MAX - (double)INT16_MIN;
     double dataScaled = data * range / 2.0;
     *ptrTyped = dataScaled;
 }
 
-void writeData_f32(uint8_t* ptr, double data) {
+void Sound::writeData_f32(uint8_t* ptr, double data) {
     float* ptrTyped = (float*)ptr;
     *ptrTyped = data;
 }
 
-static double getData() {
+double Sound::getData() {
     double sampleRate = (double) obtainedSpec.freq;
     double period = sampleRate / m_frequency;
 
@@ -68,7 +65,7 @@ static double getData() {
     return sin(pos * angular_freq) * amplitude;
 }
 
-static void audioCallback(void* userdata, uint8_t* stream, int len) {
+void Sound::audioCallback(void* userdata, uint8_t* stream, int len) {
     (void)userdata;
     (void)len;
 
@@ -85,23 +82,22 @@ static void audioCallback(void* userdata, uint8_t* stream, int len) {
     }
 }
 
-void init_sound() {
+Sound::Sound() {
     DEBUG_LOG("Initializing sound");
     SDL_AudioSpec desiredSpec;
     SDL_zero(desiredSpec);
 
     // common sampling frequency
     desiredSpec.freq = 44100;
-
     desiredSpec.format = AUDIO_S16;
     desiredSpec.samples = 512;
     desiredSpec.channels = 1;
     desiredSpec.callback = audioCallback;
+
     audioDevice = SDL_OpenAudioDevice(NULL, 0, &desiredSpec, &obtainedSpec, 0);
 
     if (audioDevice == 0) {
-        fprintf(stderr, "Failed to open audio: %s\n", SDL_GetError());
-        exit(EXIT_FAILURE);
+        SEND_FAILED("Failed to open audio: %s\n", SDL_GetError());
     } else {
         char formatName[10];
         switch (obtainedSpec.format) {
@@ -116,23 +112,21 @@ void init_sound() {
                 strcpy(formatName, "AUDIO_F32");
                 break;
             default:
-                fprintf(stderr, "Unsupported audio format: %i\n", obtainedSpec.format);
-                exit(EXIT_FAILURE);
+                SEND_FAILED("Unsupported audio format: %i\n", obtainedSpec.format);
                 break;
         }
     }
 }
 
-static bool playing = false;
 
-void sound_start() {
+void Sound::start() {
     if (!playing) {
         SDL_PauseAudioDevice(audioDevice, 0);
         playing = true;
     }
 }
 
-void sound_stop() {
+void Sound::stop() {
     if (playing) {
         SDL_PauseAudioDevice(audioDevice, 1);
         playing = false;
