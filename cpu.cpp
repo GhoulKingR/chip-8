@@ -126,19 +126,18 @@ void CPU::run_instruction() {
         display.render();
     } else if (b1 == 0xE) {
         if (b34 == 0x9E) {
-            DEBUG_LOG("Is key %x pressed", b2);
             if (keys[key_translations[b2]]) {
                 pc += 2;
-                DEBUG_LOG("Yes");
+                DEBUG_LOG("Is key %x pressed: %s (%2x%2x)", b2, "Yes", b12, b34);
             } else {
-                DEBUG_LOG("No");
+                DEBUG_LOG("Is key %x pressed: %s (%2x%2x)", b2, "No", b12, b34);
             }
         } else if (b34 == 0xA1) {
             if (!keys[key_translations[b2]]) {
                 pc += 2;
-                DEBUG_LOG("Yes");
+                DEBUG_LOG("Is key %x not pressed: %s (%2x%2x)", b2, "Yes", b12, b34);
             } else {
-                DEBUG_LOG("No");
+                DEBUG_LOG("Is key %x not pressed: %s (%2x%2x)", b2, "No", b12, b34);
             }
         } else {
             SEND_FAILED("Invalid instruction %2x%2x", b12, b34);
