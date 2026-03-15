@@ -26,11 +26,6 @@ Display::~Display() {
 
 Display::Display() {
     DEBUG_LOG("Initializing display");
-    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-        SEND_FAILED("Error initializing SDL: %s", SDL_GetError());
-    } else {
-        DEBUG_LOG("SDL initialized successfully");
-    }
 
     window = SDL_CreateWindow(
         "CHIP-8",
