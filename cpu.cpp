@@ -27,11 +27,12 @@ static int key_translations[16] = {
     SDLK_e, SDLK_f
 };
 
-CPU::CPU(Display &display, Memory &memory) :
+CPU::CPU(Display &display, Memory &memory, Sound &sound) :
     engine(std::chrono::system_clock::now().time_since_epoch().count()),
     dist(0x0, 0x99),
     display(display),
-    memory(memory)
+    memory(memory),
+    sound(sound)
 {}
 
 void CPU::run_instruction() {
@@ -207,9 +208,9 @@ void CPU::start() {
         run_instruction();
 
         if (st > 0) {
-            sound_start();
+            sound.start();
         } else {
-            sound_stop();
+            sound.stop();
         }
 
         SDL_Delay(5);

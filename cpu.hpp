@@ -4,6 +4,7 @@
 #include "config.hpp"
 #include "display.hpp"
 #include "ram.hpp"
+#include "sound.hpp"
 #include <array>
 #include <cstdint>
 #include <random>
@@ -28,8 +29,9 @@ struct CPU {
 
     Display &display;
     Memory &memory;
+    Sound &sound;
 
-    CPU(Display&, Memory&);
+    CPU(Display&, Memory&, Sound&);
     void start();
 
 private:
